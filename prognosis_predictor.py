@@ -7,6 +7,7 @@ from math import ceil
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
+from sklearn.metrics import roc_auc_score
 
 ICD9_DGNS_CD = ['ICD9_DGNS_CD_1','ICD9_DGNS_CD_2','ICD9_DGNS_CD_3','ICD9_DGNS_CD_4',
                 'ICD9_DGNS_CD_5','ICD9_DGNS_CD_6','ICD9_DGNS_CD_7','ICD9_DGNS_CD_8',
@@ -42,37 +43,21 @@ def main():
     print('logistic regression')
     lr = LogisticRegression()
     lr.fit(Xtrain, Ytrain)
-    C = lr.predict(Xtest)
-    error = 0.0
-    for i,b in enumerate(C):
-        if Ytest[i] == b:
-            pass
-        else:
-            error += 1
-    print(error / len(C))
+    p = lr.predict_proba(Xtest)[:,0]
+    aoc = roc_auc_score(Ytest, p)
+    print(aoc)
     print('random forest')
     rf = RandomForestClassifier()
     rf.fit(Xtrain, Ytrain)
-    error = 0.0
-    C = rf.predict(Xtest)
-    error = 0.0
-    for i,b in enumerate(C):
-        if Ytest[i] == b:
-            pass
-        else:
-            error += 1
-    print(error / len(C))
+    p = rf.predict_proba(Xtest)[:,0]
+    aoc = roc_auc_score(Ytest, p)
+    print(aoc)
     print('svm')
-    sv = svm.SVC()
+    sv = svm.SVC(kernel='poly', degree=2, probability=True)
     sv.fit(Xtrain, Ytrain)
-    error = 0.0
-    C = sv.predict(Xtest)
-    for i,b in enumerate(C):
-        if Ytest[i] == b:
-            pass
-        else:
-            error += 1
-    print(error / len(C))
+    p = sv.predict_proba(Xtest)[:,0]
+    aoc = roc_auc_score(Ytest, p)
+    print(aoc)
     
 def matrix_format(data_points):
     # age / ismale / diabetes / nutrition deficiences / hypertension / infectious disease /
